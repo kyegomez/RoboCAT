@@ -70,6 +70,16 @@ class VQGAN_F8_8192:
         img = TF.center_crop(img, output_size=2 * [target_image_size])
         img = torch.unsqueeze(T.ToTensor()(img), 0)
         return img
+    
+    def collect_and_preprocess_data(self, data_urls):
+        preprocessed_data = []
+        for url in data_urls:
+            response = requests.get(url)
+            img = Image.open(BytesIO(response.content))
+            preprocessed_img = self.preprocess(img)
+            preprocessed_data.append(preprocessed_img)
+        return preprocessed_data
+    
 
     def reconstruct(self, img):
         x = self.preprocess(img)
@@ -96,3 +106,14 @@ reconstructed_image = vqgan.reconstruct(input_image)
 input_image.show()
 reconstructed_image.show()
 
+
+
+# Collect proprioceptive observations, agent actions, and images
+data_urls = [
+    "https://images.unsplash.com/photo-1592194996308-7b43878e84a6",
+    "https://images.unsplash.com/photo-1582719508461-905c673771fd",
+    # ...
+]
+
+#preprocess the collected data for tokenization
+preprocessed_data = vqgan.collect_and_preprocess_data(data_urls)
