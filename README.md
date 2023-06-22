@@ -7,11 +7,11 @@ Implementation of Deepmind's <a href="https://storage.googleapis.com/deepmind-me
 
 
 
-Research Paper Implementation Document
-Architecture
+### Architecture
 The RoboCat architecture is based on the Gato model and a VQ-GAN encoder. The Gato model is an autoregressive transformer model, while the VQ-GAN encoder is pretrained on a diverse set of images for faster training and better generalization.
 
-Algorithmic Pseudocode
+### Algorithmic Pseudocode
+```
 Pretrain VQ-GAN encoder on a diverse set of images.
 Tokenize proprioceptive observations, agent actions, and images using the pretrained VQ-GAN encoder.
 Train the RoboCat agent using a dataset containing tokenized trajectories and a token prediction loss.
@@ -19,7 +19,11 @@ Fine-tune the RoboCat agent on a small dataset of new episodic experience (100-1
 Deploy the fine-tuned RoboCat agent to gather additional data for self-improvement.
 Train a new iteration of the RoboCat agent using the updated dataset.
 Deploy the RoboCat agent on real-world robotic embodiments.
-File Tree
+```
+
+### File Tree
+
+```
 RoboCat/
 │
 ├── data/
@@ -40,8 +44,7 @@ RoboCat/
 │   └── deployment.py
 │
 └── main.py
-
-
+```
 ## Requirements
 To reproduce the paper, the following requirements are needed:
 
@@ -63,6 +66,19 @@ Two main challenges arise during real-world deployment: success classification a
 
 
 
+# Roadmap
+
+* Functional prototype
+
+* Train on massive datasets
+
+* Finetune as specified on paper
+
+* Release as paid API
+
+* Integrate more modalities like hearing, 3d mapping, nerfs, videos, lidar, locomotion, and the whole lot!
+
+
 ## Citations
 
 ```bibtex
@@ -73,5 +89,6 @@ Two main challenges arise during real-world deployment: success classification a
     year    = {2023}
 }
 ```
+
 
 
