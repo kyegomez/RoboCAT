@@ -61,8 +61,8 @@ class CFG:
     SEQ_LEN: int = 8192
     NUM_CPU: int = multiprocessing.cpu_count()
     USE_DEEPSPEED: bool = True
-    USE_FSDP: bool = False
-    USE_PRETOKENIZED: bool = False
+    USE_FSDP: bool = True
+    USE_PRETOKENIZED: bool = True
     USE_ACTIVATION_CHECKPOINTING: bool = False
     RESUME_FROM_CHECKPOINT: str = None
     CHECKPOINTING_STEPS: int = 1000
