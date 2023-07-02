@@ -1,6 +1,6 @@
 classifier-free-guidance-pytorch
 torch
-lion_pytorch
+lion-pytorch
 
 transformers
 datasets
