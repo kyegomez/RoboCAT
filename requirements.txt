@@ -1,0 +1,11 @@
+classifier-free-guidance-pytorch
+torch
+lion-pytorch
+
+transformers
+datasets
+torch
+
+flash-attn
+einops
+accelerate
