@@ -8,6 +8,36 @@ RoboCAT is a self-improving foundation agent for robotic manipulation developed 
 There are 2 methods one is by pip `pip install robotcat` and the other is `git clone`
 
 
+## Method1
+* first `python3 -m pip install robocat
+
+* Then:
+
+```python
+import torch
+from roboCAT import robo_cat
+
+#example usage
+video = torch.randn(2, 3, 6, 224, 224)
+instructions = [
+    'Bring me tthat apple on the table',
+    'Please bring me the butter'
+]
+
+train_logits = robo_cat.forward(video, instructions)
+robo_cat.model.eval()
+eval_logits = robo_cat.forward(video, instructions, cond_scale=3.0)
+```
+
+* Or train:
+
+```python
+from roboCAT import RoboCat_Train
+
+RoboCat_Train()
+
+```
+
 
 # Method 2
 
