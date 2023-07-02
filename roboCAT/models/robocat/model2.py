@@ -1,5 +1,5 @@
-from vqgan.VQGAN import VQGAN_F8_8192
-from gato.GATO.gato import GatoConfig, Gato
+from models.vqgan.VQGAN import VQGAN_F8_8192
+from models.gato.GATO.gato import GatoConfig, Gato
 import torch
 #
 class RoboCat:

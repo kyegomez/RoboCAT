@@ -10,20 +10,6 @@ RoboCAT is a self-improving foundation agent for robotic manipulation developed 
 
 The architecture of RoboCAT allows for the integration of multiple robot embodiments with a unified interface. By predicting the appropriate number of tokens based on the robot's morphology, the model can effectively scale without the need for separate prediction heads for each embodiment.
 
-## Action Step Plan
-
-To recreate the RoboCAT model, follow these steps:
-
-1. Clone the RoboCAT repository from the provided link.
-2. Install the required dependencies mentioned in the README.md file.
-3. Download the necessary datasets and pre-trained models as instructed in the repository.
-4. Set up the Mujoco Physics Simulator and connect the robotic hardware for real-world experiments.
-5. Explore the codebase to understand the architecture and modules of RoboCAT.
-6. Run the provided examples and demonstrations to observe the model's performance on different manipulation tasks.
-7. Experiment with fine-tuning the models on new tasks or extending the capabilities of RoboCAT.
-8. Contribute to the project by submitting bug reports, improvements, or new features via pull requests.
-
-Please refer to the README.md file in the RoboCAT repository for detailed usage instructions, dataset preparation, and additional information.
 
 ## Misc Components
 
