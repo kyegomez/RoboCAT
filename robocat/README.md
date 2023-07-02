@@ -203,3 +203,121 @@ class RT1(nn.Module):
 ```
 
 The exact nature of the `tokenize` method and the `Embedding` layer will depend on your application and your data. You may also need to adjust the rest of your code to work with these embeddings, especially if the dimensions of the embeddings are different from what the rest of your code expects.
+
+
+
+
+--------------------------------------
+The tokenizer is needed to convert the input text into a format that the embedding provider can understand. Text is typically represented as sequences of characters, but models like transformers work with sequences of tokens, where each token often represents a word or part of a word. The tokenizer is responsible for this conversion.
+
+For example, consider the sentence "Please bring me the butter". The tokenizer might convert this into the sequence of tokens ["Please", "bring", "me", "the", "butter"], and then map these tokens to their corresponding indices in the vocabulary: [45, 30, 12, 5, 78]. These indices can then be passed to an embedding layer to get the corresponding word embeddings.
+
+To integrate an embedding provider into the RoboCAT class, you can certainly do so. You will just need to ensure that the embeddings are being produced at the right stage of the model's forward method, and that they are being passed to the correct places. 
+
+The structure of the RoboCAT class you provided suggests that the text data (instructions) are processed entirely within the `RT1` class's forward method. If you'd like to handle text processing within the `RoboCAT` class instead, you could modify your code to look something like this:
+
+```python
+class RoboCAT:
+    def __init__(self, num_classes, dim_conv_stem, dim, dim_head, depth, window_size, mbconv_expansion_rate,
+                 mbconv_shrinkage_rate, dropout, num_actions, rt_depth, heads, rt_dim_head, cond_drop_prob,
+                 vocab_size, embedding_dim):  # NEW: additional arguments for embedding
+        self.vit = MaxViT(
+            num_classes=num_classes,
+            dim_conv_stem=dim_conv_stem,
+            dim=dim,
+            dim_head=dim_head,
+            depth = depth,
+            window_size = window_size,
+            mbconv_expansion_rate=mbconv_expansion_rate,
+            mbconv_shrinkage_rate = mbconv_shrinkage_rate,
+            dropout=dropout
+        )
+
+        self.model = RT1(
+            vit = self.vit,
+            num_actions = num_actions,
+            depth = rt_depth,
+            heads = heads,
+            dim_head = rt_dim_head,
+            cond_drop_prob = cond_drop_prob,
+        )
+
+        self.embedding = nn.Embedding(vocab_size, embedding_dim)  # NEW: add an embedding layer
+
+    def tokenize(self, texts):  # NEW: placeholder tokenizer
+        return [[int(token) for token in text.split()] for text in texts]
+
+    def forward(self, video, instructions, cond_scale=None):
+        if instructions is not None:  # NEW: tokenize and embed text
+            instructions = self.tokenize(instructions)
+            instructions = self.embedding(instructions)
+
+        return self.model(video, instructions, cond_scale)
+```
+
+Again, please note that this code includes a very simple placeholder tokenizer that you'll likely want to replace with something more sophisticated. Additionally, this example assumes that the embedding layer's output will be compatible with the rest of the model. You may need to adjust other parts of your model if this is not the case.
+
+-===========================================
+In the code you provided, the `TokenLearner` is a bit different from a conventional tokenizer. Instead of converting text into tokens, it generates learned tokens based on the visual input (specifically, the output of the Vision Transformer, or ViT). It does so using a convolutional network that aggregates spatial information from the ViT output. 
+
+However, integrating a conventional text embedding provider into the `RT1` class would involve processing text input (instructions) into tokens, and then transforming those tokens into dense vectors (embeddings). These embeddings could then be passed to the transformer along with the visual tokens. This process could be performed within the `forward` method of the `RT1` class. 
+
+Here is an example of how you could modify the `RT1` class to integrate an embedding provider:
+
+```python
+# Import the necessary PyTorch and tokenization tools
+from torch.nn import Embedding
+from transformers import BertTokenizer
+
+@beartype
+class RT1(nn.Module):
+    def __init__(
+        self,
+        *,
+        vit: MaxViT,
+        num_actions = 11,
+        action_bins = 256,
+        depth = 6,
+        heads = 8,
+        dim_head = 64,
+        token_learner_ff_mult = 2,
+        token_learner_num_layers = 2,
+        token_learner_num_output_tokens = 8,
+        cond_drop_prob = 0.2,
+        use_attn_conditioner = False,
+        conditioner_kwargs: dict = dict(),
+        vocab_size = 30522,  # default size for BERT's vocabulary
+        embedding_dim = 768  # default dimensionality for BERT's word embeddings
+    ):
+        super().__init__()
+        self.vit = vit
+
+        # Initialize tokenizer and embedding provider
+        self.tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+        self.embedding = Embedding(vocab_size, embedding_dim)
+        
+        # Existing initializations...
+
+    def forward(
+        self,
+        video,
+        texts: Optional[List[str]] = None,
+        cond_drop_prob = 0.
+    ):
+        depth = self.transformer_depth
+        cond_drop_prob = default(cond_drop_prob, self.cond_drop_prob)
+
+        frames, device = video.shape[2], video.device
+
+        # Convert texts to embeddings
+        if texts is not None:
+            texts = [self.tokenizer.encode(text, add_special_tokens=True) for text in texts]
+            texts = self.embedding(texts)
+
+        # Existing forward pass...
+
+```
+
+In this example, we're using BERT's tokenizer and the default PyTorch `Embedding` class to convert our text input into embeddings. Remember, you need to ensure that the dimensionality of the text embeddings matches what the transformer expects.
+
+Again, please note that this is just a simple example. You may need to adjust this code to fit your specific use case, especially if your texts vary significantly in length, your transformer expects a specific input format, or you're using a different pre-trained model for tokenization and/or embedding.
