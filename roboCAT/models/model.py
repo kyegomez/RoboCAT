@@ -55,3 +55,8 @@ obs = (torch.tensor([[ 0,  1,  2, 19, 20, 21,  0,  1,  2, 19, 20, 21]]),
        torch.tensor([[ 1,  1,  1,  1,  1,  0,  1,  1,  1,  1,  1,  0]]))
 
 hidden_states = robocat.feed_to_gato(input_ids, encoding, row_pos, col_pos, obs)
+
+
+
+
+
