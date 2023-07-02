@@ -9,7 +9,7 @@ There are 2 methods one is by pip `pip install robotcat` and the other is `git 
 
 
 ## Method1
-* first `python3 -m pip install robocat
+* first `python3 -m pip install robocat`
 
 * Then:
 
