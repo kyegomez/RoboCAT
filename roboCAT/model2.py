@@ -1,8 +1,8 @@
-from models.vqgan.VQGAN import VQGAN_F8_8192
-from models.gato.GATO.gato import GatoConfig, Gato
+from robocat.models.vqgan.VQGAN import VQGAN_F8_8192
+from robocat.models.gato.GATO.gato import GatoConfig, Gato
 import torch
 #
-class RoboCat:
+class RoboCat2:
     def __init__(self, device, vqgan_config=None, gato_config=None):
         self.device = device
         self.vqgan = VQGAN_F8_8192(self.device)
@@ -36,7 +36,7 @@ class RoboCat:
             return None
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else "cpu")
-robocat = RoboCat(device)
+robocat = RoboCat2(device)
 
 data_urls = ["https://images.unsplash.com/photo-1592194996308-7b43878e84a6", 
              "https://images.unsplash.com/photo-1582719508461-905c673771fd"]

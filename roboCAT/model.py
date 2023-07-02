@@ -1,5 +1,5 @@
 import torch
-from models.MechaZilla.models.rt1.robotic_transformer import MaxViT, RT1
+from robocat.models.MechaZilla.models.rt1.robotic_transformer import MaxViT, RT1
 
 class RoboCAT:
     def __init__(self, num_classes, dim_conv_stem, dim, dim_head, depth, window_size, mbconv_expansion_rate,

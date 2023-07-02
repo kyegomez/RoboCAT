@@ -41,9 +41,9 @@ from transformers import (AutoTokenizer, default_data_collator,
 from transformers import AutoModelForCausalLM, BitsAndBytesConfig
 
 
-from roboCAT.models.MechaZilla.models.rt1.robotic_transformer import TransformerAttention
-from roboCAT.model import robo_cat
-from roboCAT.utils.stabe_adam import StableAdamWUnfused
+from robocat.models.MechaZilla.models.rt1.robotic_transformer import TransformerAttention
+from robocat.model import robo_cat
+from robocat.utils.stabe_adam import StableAdamWUnfused
 
 ############ SETUP CONFIG
 # import torch.distributed as dist
