@@ -105,6 +105,10 @@ The RoboCAT paper presents a self-improving foundation agent for robotic manipul
 
 * Functional prototype
 
+* Integrate VQGAN to generate an image when it has not encountered an known environment
+
+` environment observation -> environment familarity rating [0.0-1.0] -> generate data if lower then [0.5] -> finetune -> action`
+
 * Train on massive datasets
 
 * Finetune as specified on paper
