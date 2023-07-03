@@ -321,3 +321,37 @@ class RT1(nn.Module):
 In this example, we're using BERT's tokenizer and the default PyTorch `Embedding` class to convert our text input into embeddings. Remember, you need to ensure that the dimensionality of the text embeddings matches what the transformer expects.
 
 Again, please note that this is just a simple example. You may need to adjust this code to fit your specific use case, especially if your texts vary significantly in length, your transformer expects a specific input format, or you're using a different pre-trained model for tokenization and/or embedding.
+
+
+------------------------------
+Training the RT-1 model involves processing both text and image data and passing them through various transformations, including tokenization, embedding, and attention mechanisms. Here's an overview of the steps you'd need to follow:
+
+### 1. Text Tokenization and Embedding
+
+#### Tokenization:
+This is the process of converting a sequence of words into a sequence of tokens, which are smaller parts of the original sequence. The RT-1 model needs the text data in a tokenized format. You can use a tokenizer such as the ones provided in the transformers library by Hugging Face. They have a wide variety of pre-trained tokenizers like BERT, GPT-2, etc. 
+
+Example:
+```python
+from transformers import BertTokenizer
+tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+text_tokens = tokenizer.encode('Bring me the apple on the table', add_special_tokens=True)
+```
+#### Embedding:
+After tokenization, you typically transform these tokens into embeddings. Embeddings are dense vector representations of the tokens, and they capture semantic meanings of the words. These embeddings can be generated using models like Word2Vec, GloVe, or the embedding layer of a pre-trained model like BERT. In the RT-1 model, you can use an Embedding layer as shown in the previous example to convert these tokens into embeddings.
+
+### 2. Image Tokenization and Embedding
+In the context of the RT-1 model, image tokenization isn't like traditional text tokenization. The Vision Transformer (ViT) in the RT-1 model receives an image and produces a sequence of image "tokens" - basically, patches of the image, each associated with a vector representation.
+
+The token learner module in RT-1 is responsible for learning these image tokens. These tokens are learned representations that aggregate spatial information from the ViT output.
+
+### 3. Passing the data into the model
+Now that we have our tokens, the image tokens and text embeddings can be passed into the transformer in RT-1. They're processed through a series of self-attention and feed-forward layers. The output of the transformer is then passed through a linear layer to produce action predictions.
+
+Example:
+```python
+logits = robo_cat.forward(video, text_tokens)
+```
+In this step, the `forward` function processes the video and text data. The video data is processed through the MaxViT and TokenLearner to generate image tokens. The text data is already tokenized and embedded before being passed to the function. The function then processes these tokens through the transformer layers to generate the final output.
+
+Remember, training this model would involve setting up a suitable loss function and an optimizer, and iterating through your dataset to train the model over multiple epochs. Also, note that this overview simplifies a number of complex details, and effectively training a model like RT-1 would require substantial compute resources and careful tuning.
