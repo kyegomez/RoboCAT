@@ -30,3 +30,7 @@ class RoboCAT:
     def forward(self, video, instructions, cond_scale=None):
         return self.model(video, instructions, cond_scale)
     
+#Kosmos-X
+
+
+
