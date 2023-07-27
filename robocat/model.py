@@ -1,4 +1,3 @@
-import torch
 from robocat.models.MechaZilla.models.rt1.robotic_transformer import MaxViT, RT1
 
 class RoboCAT:
@@ -30,7 +29,3 @@ class RoboCAT:
     def forward(self, video, instructions, cond_scale=None):
         return self.model(video, instructions, cond_scale)
     
-#Kosmos-X
-
-
-

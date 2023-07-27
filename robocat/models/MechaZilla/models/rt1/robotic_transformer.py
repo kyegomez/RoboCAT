@@ -8,7 +8,6 @@ from beartype import beartype
 from einops import pack, unpack, repeat, reduce, rearrange
 from einops.layers.torch import Rearrange, Reduce
 
-from functools import partial
 
 from classifier_free_guidance_pytorch import TextConditioner, AttentionTextConditioner, classifier_free_guidance
 

@@ -5,7 +5,6 @@ from gato.models.embedding import PatchPositionEncoding, ResidualEmbedding, Loca
 from gato.models.tokenizers import ContinousValueTokenizer
 
 from gato import GatoConfig
-from typing import Dict, Any, Union
 
 
 import torch

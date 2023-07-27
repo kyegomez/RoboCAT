@@ -61,7 +61,7 @@ class ImageNetBase(Dataset):
         ignore = set([
             "n06596364_9591.JPEG",
         ])
-        relpaths = [rpath for rpath in relpaths if not rpath.split("/")[-1] in ignore]
+        relpaths = [rpath for rpath in relpaths if rpath.split("/")[-1] not in ignore]
         if "sub_indices" in self.config:
             indices = str_to_indices(self.config["sub_indices"])
             synsets = give_synsets_from_indices(indices, path_to_yaml=self.idx2syn)  # returns a list of strings
@@ -266,7 +266,8 @@ def get_preprocessor(size=None, random_crop=False, additional_targets=None,
         preprocessor = albumentations.Compose(transforms,
                                               additional_targets=additional_targets)
     else:
-        preprocessor = lambda **kwargs: kwargs
+        def preprocessor(**kwargs):
+            return kwargs
     return preprocessor
 
 

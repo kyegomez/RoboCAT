@@ -1,9 +1,6 @@
-from typing import Dict, Any, Union
 from gato import GatoConfig
 
-import torch 
 import torch.nn as nn
-import torch.nn.functional as F
 
 #implement alibi, flash sparse multihead attention + other juicy plug methods
 from flash_attn.flash_blocksparse_attention import FlashBlocksparseMHA

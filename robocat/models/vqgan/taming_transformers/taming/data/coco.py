@@ -33,7 +33,7 @@ class CocoBase(Dataset):
         self.onehot = onehot_segmentation       # return segmentation as rgb or one hot
         self.stuffthing = use_stuffthing        # include thing in segmentation
         if self.onehot and not self.stuffthing:
-            raise NotImplemented("One hot mode is only supported for the "
+            raise NotImplementedError("One hot mode is only supported for the "
                                  "stuffthings version because labels are stored "
                                  "a bit different.")
 

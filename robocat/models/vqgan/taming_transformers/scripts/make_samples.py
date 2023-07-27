@@ -1,10 +1,9 @@
-import argparse, os, sys, glob, math, time
+import argparse, os, sys, glob
 import torch
 import numpy as np
 from omegaconf import OmegaConf
 from PIL import Image
-from main import instantiate_from_config, DataModuleFromConfig
-from torch.utils.data import DataLoader
+from main import instantiate_from_config
 from torch.utils.data.dataloader import default_collate
 from tqdm import trange
 
@@ -36,7 +35,6 @@ def run_conditional(model, dsets, outdir, top_k, temperature, batch_size=1):
         cond_key = model.cond_stage_key
         c = model.get_input(cond_key, example).to(model.device)
 
-        scale_factor = 1.0
         quant_z, z_indices = model.encode_to_z(x)
         quant_c, c_indices = model.encode_to_c(c)
 

@@ -1,10 +1,8 @@
 import os
-import sys
 import yaml
 
 import torch
 import requests
-import numpy as np
 
 from PIL import Image
 from omegaconf import OmegaConf

@@ -4,11 +4,11 @@ import numpy as np
 from PIL import Image
 import torch
 import torchvision
-from torch.utils.data import random_split, DataLoader, Dataset
+from torch.utils.data import DataLoader, Dataset
 import pytorch_lightning as pl
 from pytorch_lightning import seed_everything
 from pytorch_lightning.trainer import Trainer
-from pytorch_lightning.callbacks import ModelCheckpoint, Callback, LearningRateMonitor
+from pytorch_lightning.callbacks import Callback
 from pytorch_lightning.utilities import rank_zero_only
 
 from taming.data.utils import custom_collate
@@ -114,7 +114,7 @@ def nondefault_trainer_args(opt):
 
 
 def instantiate_from_config(config):
-    if not "target" in config:
+    if "target" not in config:
         raise KeyError("Expected key `target` to instantiate.")
     return get_obj_from_str(config["target"])(**config.get("params", dict()))
 
@@ -422,7 +422,7 @@ if __name__ == "__main__":
         trainer_config["distributed_backend"] = "ddp"
         for k in nondefault_trainer_args(opt):
             trainer_config[k] = getattr(opt, k)
-        if not "gpus" in trainer_config:
+        if "gpus" not in trainer_config:
             del trainer_config["distributed_backend"]
             cpu = True
         else:

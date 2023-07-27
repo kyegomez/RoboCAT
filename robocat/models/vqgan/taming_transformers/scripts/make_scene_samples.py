@@ -115,14 +115,14 @@ def add_arg_to_parser(parser):
         "--conditional",
         type=str,
         default='objects_bbox',
-        help=f"objects_bbox or objects_center_points",
+        help="objects_bbox or objects_center_points",
     )
     parser.add_argument(
         "-N",
         "--n_samples_per_layout",
         type=int,
         default=4,
-        help=f"how many samples to generate per layout",
+        help="how many samples to generate per layout",
     )
     return parser
 

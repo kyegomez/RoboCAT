@@ -42,3 +42,24 @@ To reproduce RoboCat:
 7. Retrain transformer on combined data to create improved RoboCat version
 
 The key requirements are the VQ-GAN encoder, diverse robotic manipulation datasets covering multiple embodiments and tasks, the model architecture and training methodology described in the paper, and an iterative process of fine-tuning, data collection, and retraining for self-improvement. With these components, RoboCat could be reproduced.
+
+The RoboCat model itself does not generate images. The VQ-GAN encoder is used to encode images into discrete tokens, but the decoder is not used after pretraining. 
+
+RoboCat only predicts actions and future encoded observation tokens. It does not predict future pixel values or synthesize images.
+
+For self-improvement, RoboCat leverages hindsight relabelling of goals and the ability to learn from failed episodes. Specifically:
+
+- During training, goal images for an episode can be relabeled using the final image of that same episode. This allows all time steps in a trajectory to be trained towards reaching that final state, even if the original episode failed.
+
+- Additionally, goals can be relabeled using final images from other successful episodes of that task. A “success detector” trained on human annotated data is used to identify successful episodes for this semantic relabelling.
+
+- When fine-tuning RoboCat on a new task, it is trained on successful expert demonstrations. But when deploying the fine-tuned model for data collection, failed episodes are incorporated using hindsight relabelling of goals based on whatever final state is reached.
+
+- So the model learns from both successful expert data as well as its own failed attempts by relabelling goals after data collection. The additional data generated this way improves the next RoboCat version.
+
+In summary, the model does not directly generate images or reward itself. But it enables self-improvement by leveraging hindsight goal relabelling to turn failed episodes into useful training data for the next iteration. The ability to learn from suboptimal experience in this way is a key capability that allows RoboCat to autonomously collect and learn from more data to self-improve.
+
+
+
+
+* it can generat data using CH8MELON, 

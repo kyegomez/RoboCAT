@@ -1,4 +1,3 @@
-import os, math
 import torch
 import torch.nn.functional as F
 import pytorch_lightning as pl
@@ -118,7 +117,7 @@ class Net2NetTransformer(pl.LightningModule):
         if self.pkeep <= 0.0:
             # one pass suffices since input is pure noise anyway
             assert len(x.shape)==2
-            noise_shape = (x.shape[0], steps-1)
+            (x.shape[0], steps-1)
             #noise = torch.randint(self.transformer.config.vocab_size, noise_shape).to(x)
             noise = c.clone()[:,x.shape[1]-c.shape[1]:-1]
             x = torch.cat((x,noise),dim=1)

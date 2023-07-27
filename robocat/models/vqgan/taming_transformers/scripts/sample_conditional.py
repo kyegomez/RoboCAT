@@ -3,14 +3,13 @@ import torch
 import numpy as np
 from omegaconf import OmegaConf
 import streamlit as st
-from streamlit import caching
 from PIL import Image
-from main import instantiate_from_config, DataModuleFromConfig
-from torch.utils.data import DataLoader
+from main import instantiate_from_config
 from torch.utils.data.dataloader import default_collate
 
 
-rescale = lambda x: (x + 1.) / 2.
+def rescale(x):
+    return (x + 1.0) / 2.0
 
 
 def bchw_to_st(x):
@@ -338,7 +337,7 @@ if __name__ == "__main__":
 
     st.sidebar.text(ckpt)
     gs = st.sidebar.empty()
-    gs.text(f"Global step: ?")
+    gs.text("Global step: ?")
     st.sidebar.text("Options")
     #gpu = st.sidebar.checkbox("GPU", value=True)
     gpu = True
