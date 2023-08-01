@@ -13,9 +13,9 @@ from torch.distributed.fsdp import (
     ShardingStrategy,
 )
 from accelerate import Accelerator
-from accelerate.utils import (DummyOptim, DummyScheduler,
+from accelerate.utils import (DummyOptim,
                               InitProcessGroupKwargs)
-from datasets import concatenate_datasets, load_dataset
+from datasets import load_dataset
 from lion_pytorch import Lion
 from torch.nn import LayerNorm
 
@@ -41,7 +41,7 @@ from transformers import (AutoTokenizer, default_data_collator,
 
 from accelerate.logging import get_logger
 
-from robocat.models.MechaZilla.models.rt1.robotic_transformer import TransformerAttention
+
 from robocat.model import RoboCAT
 from robocat.utils.stabe_adam import StableAdamWUnfused
 
@@ -103,7 +103,7 @@ def activation_checkpointing(
     if accelerator is not None:
         accelerator.print("Using activation checkpointing")
     def check_fn(submodule):
-        return isinstance(submodule, TransformerAttention)
+        return isinstance(submodule, RoboCAT)
     non_reentrant_wrapper = partial(
         checkpoint_wrapper,
         offload_to_cpu=offload_to_cpu,
@@ -143,7 +143,7 @@ def fsdp(
         Andromeda_auto_wrap_policy = partial(
             transformer_auto_wrap_policy,
             transformer_layer_cls={
-                TransformerAttention,
+                RoboCAT,
             },
         )
     else:
