@@ -1,35 +1,24 @@
 import torch
-from robocat.model import RoboCAT
+from robocat import PALME, Robocat
 
-
-#example usage
-video = torch.randn(2, 3, 6, 224, 224)
-instructions = [
-    'Bring me tthat apple on the table',
-    'Please bring me the butter'
-]
-
-robo_cat = RoboCAT(
-    num_classes=1000,
-    dim_conv_stem=64,
-    dim=96,
-
-    dim_head=32,
-    depth=(2, 2, 5, 2),
-    window_size = 7,
-
-    mbconv_expansion_rate=4,
-    mbconv_shrinkage_rate = 0.25,
-    dropout = 0.1,
-
-    num_actions = 11,
-    rt_depth = 6,
-    heads = 8,
-
-    rt_dim_head = 64,
-    cond_drop_prob=0.2
+model = Robocat(
+    palme=PALME(),
+    num_actions=11,
+    action_bins=256,
+    depth=6,
+    heads=8,
+    dim_head=64,
+    token_learner_ff_mult=2,
+    token_learner_num_layers=2,
+    token_learner_num_output_tokens=8,
+    cond_drop_prob=0.2,
+    use_attn_conditioner=False,
+    conditioner_kwargs=dict()
 )
 
-train_logits = robo_cat.forward(video, instructions)
-robo_cat.model.eval()
-eval_logits = robo_cat.forward(video, instructions, cond_scale=3.0)
+video = torch.rand((1, 3, 224, 224))
+texts = ["this is a text"]
+output = model(video, texts)
+
+torch.save(model.state_dict(), 'rt3_model.pth')
+
