@@ -39,40 +39,47 @@ from transformers import (AutoTokenizer, default_data_collator,
 
 # from utils.stable_adamw import StableAdamWUnfused
 
+from accelerate.logging import get_logger
 
 from robocat.models.MechaZilla.models.rt1.robotic_transformer import TransformerAttention
-from robocat.model import robo_cat
+from robocat.model import RoboCAT
 from robocat.utils.stabe_adam import StableAdamWUnfused
 
-############ SETUP CONFIG
-# import torch.distributed as dist
+########### SETUP CONFIG
+import torch.distributed as dist
 
-# dist.init_process_group(backend='nccl', init_method="env://")
 
-################
+from accelerate.state import AcceleratorState
+
+# state = AcceleratorState()
+
+
+logger = get_logger(__name__, log_level="INFO")
 
 class CFG:
-    BATCH_SIZE: int = 3
+    BATCH_SIZE = 1
     GRADIENT_ACCUMULATE_EVERY: int = 1
     SEED: int = 42
-    LEARNING_RATE: float = 3e-4
+    LEARNING_RATE: float = 1e-4 #3e-4 # 1e-4 for lion
     WEIGHT_DECAY: float = 0.1
     SEQ_LEN: int = 8192
     NUM_CPU: int = multiprocessing.cpu_count()
     USE_DEEPSPEED: bool = True
     USE_FSDP: bool = True
     USE_PRETOKENIZED: bool = True
-    USE_ACTIVATION_CHECKPOINTING: bool = False
-    RESUME_FROM_CHECKPOINT: str = None
+    USE_ACTIVATION_CHECKPOINTING: bool = True
+    RESUME_FROM_CHECKPOINT: str = False
     CHECKPOINTING_STEPS: int = 1000
-    OUTPUT_DIR: str = "YOUR_OUTPUT_DIR"
-    ENTITY_NAME: str = "YOUR_ENTITY_NAME" #wandb
+    OUTPUT_DIR: str = 'checkpoints/' # Folder
+    ENTITY_NAME: str = "Andromeda"
+    LOGGING_STEPS: int = 100
 
 
 # helpers
 
 
 def print_num_params(model, accelerator: Accelerator):
+    # n_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
     n_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
     accelerator.print(f"Number of parameters in model: {n_params}")
 
@@ -95,9 +102,8 @@ def activation_checkpointing(
     """
     if accelerator is not None:
         accelerator.print("Using activation checkpointing")
-    #maybe error here in TransformerAttention, use parallel transformer block
     def check_fn(submodule):
-        return isinstance(submodule, TransformerAttention)
+        return isinstance(submodule, TransformerWrapper)
     non_reentrant_wrapper = partial(
         checkpoint_wrapper,
         offload_to_cpu=offload_to_cpu,
@@ -134,14 +140,14 @@ def fsdp(
         torch.nn.Module: The input model wrapped with FSDP.
     """
     if auto_wrap:
-        robo_cat_auto_wrap_policy = partial(
+        Andromeda_auto_wrap_policy = partial(
             transformer_auto_wrap_policy,
             transformer_layer_cls={
-                TransformerAttention,
+                TransformerWrapper,
             },
         )
     else:
-        robo_cat_auto_wrap_policy = None
+        Andromeda_auto_wrap_policy = None
 
     if mp == "bf16":
         mp_fsdp = MixedPrecision(
@@ -189,7 +195,7 @@ def fsdp(
 
     model = FullyShardedDataParallel(
         model,
-        auto_wrap_policy=robo_cat_auto_wrap_policy,
+        auto_wrap_policy=Andromeda_auto_wrap_policy,
         mixed_precision=mp_fsdp,
         backward_prefetch=BackwardPrefetch.BACKWARD_PRE,
         sharding_strategy=sharding_strat_fsdp,
@@ -357,8 +363,13 @@ def decoupled_optimizer(
 
     # Iterate over the no_decay list, which contains the names of the parameters without weight decay.
     for param in no_decay:
-        # Append the corresponding parameter from param_dict to the no_decay_param list.
-        no_decay_param.append(param_dict[param])
+        try:
+                
+            # Append the corresponding parameter from param_dict to the no_decay_param list.
+            no_decay_param.append(param_dict[param])
+        except KeyError:
+            # print(f"Parameter {param_name} does not exist in the model")
+            pass
 
     # Create a list called grouped_params that contains two dictionaries.
     # The first dictionary has the decay_param list and the corresponding weight_decay value.
@@ -379,6 +390,10 @@ def decoupled_optimizer(
         optimizer = StableAdamWUnfused(
             grouped_params, lr=learning_rate, betas=(beta_1, beta_2),
         )
+    # elif optimizer_type=="Adam8bit":
+    #     optimizer = bnb.optim.Adam8bit(grouped_params, lr=learning_rate, betas=(beta_1, beta_2))
+    # elif optimizer_type=="Lion8Bit":
+    #     optimizer = bnb.optim.Lion8bit(grouped_params, lr=learning_rate, betas=(beta_1, beta_2))
     else:
         raise ValueError(
             "Invalid optimizer_type. Expected 'lion', 'adamw', 'deepspeed' or 'stable_adamw', got: {}".format(
@@ -442,17 +457,17 @@ def build_dataloaders():
 
 #switch to falconwebdataset
 def build_pre_tokenized():
-    d0 = load_dataset("conceptofmind/c4_0-to-20_neox_with_eos_8k", split="train")
-    d1 = load_dataset("conceptofmind/c4_21-to-40_neox_with_eos_8k", split="train")
-    d2 = load_dataset("conceptofmind/c4_41-to-60_neox_with_eos_8k", split="train")
-    d3 = load_dataset("conceptofmind/c4_61-to-80_neox_with_eos_8k", split="train")
-    d4 = load_dataset("conceptofmind/c4_81-to-100_neox_with_eos_8k", split="train")
-    train_dataset = concatenate_datasets([d0, d1, d2, d3, d4])
-    return train_dataset
+    d0 = load_dataset("conceptofmind/c4_0-to-20_neox_with_eos_8k", split="train[:10]")
+    # d1 = load_dataset("conceptofmind/c4_21-to-40_neox_with_eos_8k", split="train")
+    # d2 = load_dataset("conceptofmind/c4_41-to-60_neox_with_eos_8k", split="train")
+    # d3 = load_dataset("conceptofmind/c4_61-to-80_neox_with_eos_8k", split="train")
+    # d4 = load_dataset("conceptofmind/c4_81-to-100_neox_with_eos_8k", split="train")
+    # train_dataset = concatenate_datasets([d0, d1, d2, d3, d4])
+    return d0
 
 
 
-def RoboCat_Train():
+def Train():
     # accelerator
 
     timeout = InitProcessGroupKwargs(timeout=timedelta(seconds=1_000_000))
@@ -463,18 +478,20 @@ def RoboCat_Train():
         log_with="wandb",
         kwargs_handlers=[timeout],
     )
-    # AcceleratorState().deepspeed_plugin.deepspeed_config['train_micro_batch_size_per_gpu'] = 4 #??????
 
+    state = AcceleratorState()
+    
+    state.deepspeed_plugin.deepspeed_config['train_micro_batch_size_per_gpu'] = CFG.BATCH_SIZE #??????
 
     accelerator.init_trackers(
-        project_name="robo_cat",
+        project_name="Andromeda",
         config={
             "batch_size": CFG.BATCH_SIZE,
             "gradient_accumulate_every": CFG.GRADIENT_ACCUMULATE_EVERY,
             "learning_rate": CFG.LEARNING_RATE,
             "seq_len": CFG.SEQ_LEN,
         },
-        init_kwargs={"wandb": {"entity": CFG.ENTITY_NAME}},
+        # init_kwargs={"wandb": {"entity": CFG.ENTITY_NAME}},
     )
 
     accelerator.print(f"Total GPUS: {accelerator.num_processes}")
@@ -483,11 +500,7 @@ def RoboCat_Train():
 
     set_seed(CFG.SEED)
 
-
-    # model = robo_cat.to(accelerator.device)
-    # model = AutoModelForCausalLM.from_pretrained("YOUR MODEL", load_in_4bit=True, device_map="auto").to(accelerator.device)
-
-    model = robo_cat.to(accelerator.device)
+    model = RoboCAT()
 
     print_num_params(model, accelerator)
 
@@ -514,15 +527,15 @@ def RoboCat_Train():
         train_dataset, batch_size=CFG.BATCH_SIZE, collate_fn=default_data_collator,
     )
 
-    # optimizer
 
+    # optimizer
     optim = decoupled_optimizer(
         model=model,
         learning_rate=CFG.LEARNING_RATE, 
         weight_decay=CFG.WEIGHT_DECAY, 
         beta_1=0.90, 
         beta_2=0.95, 
-        optimizer_type='deepspeed',  
+        optimizer_type='lion',  
         use_fsdp=True,
         accelerator=accelerator
     )
@@ -537,20 +550,20 @@ def RoboCat_Train():
     NUM_WARMUP_STEPS = int(max_train_steps * 0.01)
     accelerator.print(f"Num warmup steps: {NUM_WARMUP_STEPS}")
 
-    if CFG.USE_DEEPSPEED:
-        lr_scheduler = DummyScheduler(
-            optim, 
-            total_num_steps=max_train_steps * accelerator.num_processes, 
-            warmup_num_steps=NUM_WARMUP_STEPS
-        )
-    else:
-        lr_scheduler = get_lr_scheduler_with_warmup(
-            optimizer=optim,
-            scheduler_type="cosine",
-            num_warmup_steps=NUM_WARMUP_STEPS,
-            max_train_steps=max_train_steps,
-            grad_accumulate_every=CFG.GRADIENT_ACCUMULATE_EVERY,
-        )
+    # if False: # if CFG.USE_DEEPSPEED:
+    #     lr_scheduler = DummyScheduler(
+    #         optim, 
+    #         total_num_steps=max_train_steps * accelerator.num_processes, 
+    #         warmup_num_steps=NUM_WARMUP_STEPS
+    #     )
+    # else:
+    lr_scheduler = get_lr_scheduler_with_warmup(
+        optimizer=optim,
+        scheduler_type="cosine",
+        num_warmup_steps=NUM_WARMUP_STEPS,
+        max_train_steps=max_train_steps,
+        grad_accumulate_every=CFG.GRADIENT_ACCUMULATE_EVERY,
+    )
 
     # prepare
 
@@ -631,6 +644,12 @@ def RoboCat_Train():
         if completed_steps >= max_train_steps:
             break
 
+        #logging every CFG.LOGGING STEPS
+        if CFG.LOGGING_STEPS > 0 and step % CFG.LOGGING_STEPS == 0:
+            logger.info(
+                f"Step: {completed_steps}/{max_train_steps}, Loss: {loss.item():.5f}"
+            )
+
     # end training
 
     # accelerator.print(f"Training Finished")
@@ -648,5 +667,20 @@ def RoboCat_Train():
             )
 
 
-if __name__ == "__main__":
-    RoboCat_Train()
+def main():
+    os.environ['MASTER_ADDR'] #'localhost'
+    os.environ['MASTER_PORT'] #= '9994'
+    
+    # # [CRITICAL] Pay attention to this when scaling to multiple GPUs and clusters
+    
+    # # Pay attention to this, use "accelerate config"
+
+    os.environ['RANK']       #= str(0) # Number of nodes (servers)
+    os.environ['WORLD_SIZE'] # = str(torch.cuda.device_count())
+
+    dist.init_process_group(backend='nccl') #init_method="env://")
+    
+    Train()
+
+if __name__ == '__main__':
+    main()
