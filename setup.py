@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 setup(
   name = 'robocat',
   packages = find_packages(exclude=[]),
-  version = '0.0.3',
+  version = '0.0.4',
   license='MIT',
   description = 'Robo CAT- Pytorch',
   author = 'Kye Gomez',
