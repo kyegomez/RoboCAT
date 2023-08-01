@@ -103,7 +103,7 @@ def activation_checkpointing(
     if accelerator is not None:
         accelerator.print("Using activation checkpointing")
     def check_fn(submodule):
-        return isinstance(submodule, TransformerWrapper)
+        return isinstance(submodule, TransformerAttention)
     non_reentrant_wrapper = partial(
         checkpoint_wrapper,
         offload_to_cpu=offload_to_cpu,
@@ -143,7 +143,7 @@ def fsdp(
         Andromeda_auto_wrap_policy = partial(
             transformer_auto_wrap_policy,
             transformer_layer_cls={
-                TransformerWrapper,
+                TransformerAttention,
             },
         )
     else:
