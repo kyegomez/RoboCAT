@@ -19,6 +19,7 @@ model = Robocat(
 video = torch.rand((1, 3, 224, 224))
 texts = ["this is a text"]
 output = model(video, texts)
+print(output.shape)
 
 torch.save(model.state_dict(), 'rt3_model.pth')
 

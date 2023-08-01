@@ -14,26 +14,38 @@ There are 2 methods one is by pip `pip install robotcat` and the other is `git 
 
 ```python
 import torch
-from roboCAT import robo_cat
+from robocat import PALME, Robocat
 
-#example usage
-video = torch.randn(2, 3, 6, 224, 224)
-instructions = [
-    'Bring me tthat apple on the table',
-    'Please bring me the butter'
-]
+model = Robocat(
+    palme=PALME(),
+    num_actions=11,
+    action_bins=256,
+    depth=6,
+    heads=8,
+    dim_head=64,
+    token_learner_ff_mult=2,
+    token_learner_num_layers=2,
+    token_learner_num_output_tokens=8,
+    cond_drop_prob=0.2,
+    use_attn_conditioner=False,
+    conditioner_kwargs=dict()
+)
 
-train_logits = robo_cat.forward(video, instructions)
-robo_cat.model.eval()
-eval_logits = robo_cat.forward(video, instructions, cond_scale=3.0)
+video = torch.rand((1, 3, 224, 224))
+texts = ["this is a text"]
+output = model(video, texts)
+print(output.shape)
+
+torch.save(model.state_dict(), 'rt3_model.pth')
+
 ```
 
 * Or train:
 
 ```python
-from roboCAT import RoboCat_Train
+from roboCAT import Train
 
-RoboCat_Train()
+Train()
 
 ```
 
@@ -49,19 +61,30 @@ RoboCat_Train()
 * Then test with 
 ```python 
 import torch
-from roboCAT import robo_cat
+from robocat import PALME, Robocat
 
+model = Robocat(
+    palme=PALME(),
+    num_actions=11,
+    action_bins=256,
+    depth=6,
+    heads=8,
+    dim_head=64,
+    token_learner_ff_mult=2,
+    token_learner_num_layers=2,
+    token_learner_num_output_tokens=8,
+    cond_drop_prob=0.2,
+    use_attn_conditioner=False,
+    conditioner_kwargs=dict()
+)
 
-#example usage
-video = torch.randn(2, 3, 6, 224, 224)
-instructions = [
-    'Bring me tthat apple on the table',
-    'Please bring me the butter'
-]
+video = torch.rand((1, 3, 224, 224))
+texts = ["this is a text"]
+output = model(video, texts)
+print(output.shape)
 
-train_logits = robo_cat.forward(video, instructions)
-robo_cat.model.eval()
-eval_logits = robo_cat.forward(video, instructions, cond_scale=3.0)
+torch.save(model.state_dict(), 'rt3_model.pth')
+
 ```
 
 * Or run training on C4 `accelerate config`
