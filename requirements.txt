@@ -5,7 +5,7 @@ lion-pytorch
 transformers
 datasets
 torch
+palme
 
-flash-attn
 einops
 accelerate

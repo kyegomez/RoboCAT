@@ -18,10 +18,16 @@ setup(
     'robotics'
   ],
   install_requires=[
-    'classifier-free-guidance-pytorch>=0.1.4',
-    'einops>=0.6',
-    'torch>=1.6',
-    ''
+      'transformers',
+      'torch',
+      'einops',
+      'beartype',
+      'palme',
+      'transformers',
+      'palm-rlhf-pytorch',
+      'tokenizers',
+      'wandb',
+      'classifier-free-guidance-pytorch'
   ],
   classifiers=[
     'Development Status :: 4 - Beta',
