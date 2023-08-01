@@ -1,8 +1,0 @@
-classifier-free-guidance-pytorch
-torch
-lion_pytorch
-transformers
-datasets
-torch
-flash-attn
-einops
