@@ -14,7 +14,7 @@ from classifier_free_guidance_pytorch import (
     classifier_free_guidance,
 )
 
-from palme import PALME
+from palme import PalmE
 
 
 #helpers
@@ -97,7 +97,7 @@ class Robocat(nn.Module):
     def __init__(
         self,
         *,
-        palme: PALME,
+        palme: PalmE,
         num_actions = 11,
         action_bins = 256,
         depth = 6,
