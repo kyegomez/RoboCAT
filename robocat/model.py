@@ -519,6 +519,7 @@ class TokenLearner(nn.Module):
         x = unpack_one(x, ps, '* c n')
         return x
     
+
 @beartype
 class RoboCat(nn.Module):
     def __init__(
@@ -541,6 +542,8 @@ class RoboCat(nn.Module):
         self.vqgan = vqgan
         
         embed_dim = vqgan.num_tokens  # This will act as our embedding dimension instead of vit.embed_dim
+
+        conditioner_klass = AttentionTextConditioner if use_attn_conditioner else TextConditioner
 
         self.conditioner = conditioner_klass(
             hidden_dims = (*tuple([embed_dim] * depth * 2),),
