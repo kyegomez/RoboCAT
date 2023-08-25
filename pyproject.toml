@@ -1,0 +1,45 @@
+[tool.poetry]
+name = "robocat"
+version = "0.0.5"
+description = "Robo CAT- Pytorch"
+authors = ["Kye Gomez <kye@apac.ai>"]
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/kyegomez/RoboCAT"
+repository = "https://github.com/kyegomez/RoboCAT"
+documentation = "https://github.com/kyegomez/RoboCAT"
+keywords = ["artificial intelligence", "deep learning", "transformers", "attention mechanism", "robotics"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.6",
+]
+
+[tool.poetry.dependencies]
+python = "^3.6"
+transformers = "*"
+torch = "*"
+einops = "*"
+beartype = "*"
+palme = "*"
+palm-rlhf-pytorch = "*"
+tokenizers = "*"
+wandb = "*"
+classifier-free-guidance-pytorch = "*"
+axial_positional_embedding = "*"
+DALL-E = "*"
+ftfy = "*"
+packaging = "*"
+pillow = "*"
+regex = "*"
+rotary-embedding-torch = "*"
+taming-transformers-rom1504 = "*"
+tqdm = "*"
+youtokentome = "*"
+WebDataset = "*"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
