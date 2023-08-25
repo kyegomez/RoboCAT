@@ -1,2 +1,1 @@
-from robocat.model import Robocat
-from robocat.train import Train
+from robocat.model import RoboCat

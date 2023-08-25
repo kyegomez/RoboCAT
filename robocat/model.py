@@ -13,8 +13,7 @@ from einops.layers.torch import Rearrange, Reduce
 from torch import einsum, nn
 
 
-from robocat.vqgan import VQGanVAE
-
+from dalle_pytorch import VQGanVAE
 
 # helpers
 

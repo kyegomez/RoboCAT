@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "robocat"
-version = "0.0.5"
+version = "0.0.7"
 description = "Robo CAT- Pytorch"
 authors = ["Kye Gomez <kye@apac.ai>"]
 license = "MIT"
@@ -28,17 +28,7 @@ palm-rlhf-pytorch = "*"
 tokenizers = "*"
 wandb = "*"
 classifier-free-guidance-pytorch = "*"
-axial_positional_embedding = "*"
-DALL-E = "*"
-ftfy = "*"
-packaging = "*"
-pillow = "*"
-regex = "*"
-rotary-embedding-torch = "*"
-taming-transformers-rom1504 = "*"
-tqdm = "*"
-youtokentome = "*"
-WebDataset = "*"
+dalle-pytorch = "*"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
