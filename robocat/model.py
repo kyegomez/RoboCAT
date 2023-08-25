@@ -12,6 +12,10 @@ from einops import pack, rearrange, reduce, repeat, unpack
 from einops.layers.torch import Rearrange, Reduce
 from torch import einsum, nn
 
+
+from robocat.vqgan import VQGanVAE
+
+
 # helpers
 
 def exists(val):
@@ -514,15 +518,13 @@ class TokenLearner(nn.Module):
         x = reduce(x * attn, 'b c g h w -> b c g', 'mean')
         x = unpack_one(x, ps, '* c n')
         return x
-
-# Robotic Transformer
-
+    
 @beartype
 class RoboCat(nn.Module):
     def __init__(
         self,
         *,
-        vit: MaxViT,
+        vqgan: VQGanVAE,
         num_actions = 11,
         action_bins = 256,
         depth = 6,
@@ -536,21 +538,19 @@ class RoboCat(nn.Module):
         conditioner_kwargs: dict = dict()
     ):
         super().__init__()
-        self.vit = vit
-
-        self.num_vit_stages = len(vit.cond_hidden_dims)
-
-        conditioner_klass = AttentionTextConditioner if use_attn_conditioner else TextConditioner
+        self.vqgan = vqgan
+        
+        embed_dim = vqgan.num_tokens  # This will act as our embedding dimension instead of vit.embed_dim
 
         self.conditioner = conditioner_klass(
-            hidden_dims = (*tuple(vit.cond_hidden_dims), *((vit.embed_dim,) * depth * 2)),
-            hiddens_channel_first = (*((True,) * self.num_vit_stages), *((False,) * depth * 2)),
+            hidden_dims = (*tuple([embed_dim] * depth * 2),),
+            hiddens_channel_first = ((False,) * depth * 2),
             cond_drop_prob = cond_drop_prob,
             **conditioner_kwargs
         )
 
         self.token_learner = TokenLearner(
-            dim = vit.embed_dim,
+            dim = embed_dim,
             ff_mult = token_learner_ff_mult,
             num_output_tokens = token_learner_num_output_tokens,
             num_layers = token_learner_num_layers
@@ -561,7 +561,7 @@ class RoboCat(nn.Module):
         self.transformer_depth = depth
 
         self.transformer = Transformer(
-            dim = vit.embed_dim,
+            dim = embed_dim,
             dim_head = dim_head,
             heads = heads,
             depth = depth
@@ -570,8 +570,8 @@ class RoboCat(nn.Module):
         self.cond_drop_prob = cond_drop_prob
 
         self.to_logits = nn.Sequential(
-            LayerNorm(vit.embed_dim),
-            nn.Linear(vit.embed_dim, num_actions * action_bins),
+            LayerNorm(embed_dim),
+            nn.Linear(embed_dim, num_actions * action_bins),
             Rearrange('... (a b) -> ... a b', b = action_bins)
         )
 
@@ -590,22 +590,15 @@ class RoboCat(nn.Module):
         cond_fns = self.conditioner(
             texts,
             cond_drop_prob = cond_drop_prob,
-            repeat_batch = (*((frames,) * self.num_vit_stages), *((1,) * self.transformer_depth * 2))
+            repeat_batch = ((1,) * self.transformer_depth * 2)
         )
-
-        vit_cond_fns, transformer_cond_fns = cond_fns[:-(depth * 2)], cond_fns[-(depth * 2):]
 
         video = rearrange(video, 'b c f h w -> b f c h w')
         images, packed_shape = pack_one(video, '* c h w')
 
-        tokens = self.vit(
-            images,
-            texts = texts,
-            cond_fns = vit_cond_fns,
-            cond_drop_prob = cond_drop_prob,
-            return_embeddings = True
-        )
-
+        # Get encoded indices using VQGanVAE
+        tokens = self.vqgan.get_codebook_indices(images)
+        
         tokens = unpack_one(tokens, packed_shape, '* c h w')
         learned_tokens = self.token_learner(tokens)
 
@@ -624,7 +617,7 @@ class RoboCat(nn.Module):
 
         # attention
 
-        attended_tokens = self.transformer(learned_tokens, cond_fns = transformer_cond_fns, attn_mask = ~attn_mask)
+        attended_tokens = self.transformer(learned_tokens, cond_fns = cond_fns, attn_mask = ~attn_mask)
 
         pooled = reduce(attended_tokens, 'b (f n) d -> b f d', 'mean', f = frames)
 

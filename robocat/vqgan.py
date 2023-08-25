@@ -230,10 +230,3 @@ class VQGanVAE(nn.Module):
     def forward(self, img):
         raise NotImplemented
     
-
-
-vae = VQGanVAE()
-
-images = torch.randn(4, 3, 256, 256)
-
-loss = vae(images, return_loss=True)
