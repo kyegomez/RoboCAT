@@ -6,15 +6,12 @@
 
 RoboCAT is a self-improving foundation agent for robotic manipulation developed by DeepMind Robotics. The model architecture of RoboCAT is similar to the RT-1 model. It follows a tokenization approach where robotics images, proprioception, and future actions are tokenized. 
 
+* Help with the implementation in the Agora discord, [![Join the Agora discord](https://img.shields.io/discord/1110910277110743103?label=Discord&logo=discord&logoColor=white&style=plastic&color=d7b023)]
 
-# Usage
-There are 2 methods one is by pip `pip install robotcat` and the other is `git clone`
+# Install
+`pip install robotcat` 
 
-
-## Method1
-* first `python3 -m pip install robocat`
-
-* Then:
+## Usage
 
 ```python
 import torch
@@ -54,42 +51,8 @@ Train()
 ```
 
 
-# Method 2
+# Train
 
-* First `git clone` the repository: `git clone https://github.com/kyegomez/RoboCAT.git`
-
-* Then cd `cd RoboCAT` 
-
-* Then, pip install: `python3 -m pip install -r requirements.txt`
-
-* Then test with 
-```python 
-import torch
-from robocat import PALME, Robocat
-
-model = Robocat(
-    palme=PALME(),
-    num_actions=11,
-    action_bins=256,
-    depth=6,
-    heads=8,
-    dim_head=64,
-    token_learner_ff_mult=2,
-    token_learner_num_layers=2,
-    token_learner_num_output_tokens=8,
-    cond_drop_prob=0.2,
-    use_attn_conditioner=False,
-    conditioner_kwargs=dict()
-)
-
-video = torch.rand((1, 3, 224, 224))
-texts = ["this is a text"]
-output = model(video, texts)
-print(output.shape)
-
-torch.save(model.state_dict(), 'rt3_model.pth')
-
-```
 
 * Or run training on C4 `accelerate config`
 
