@@ -6,7 +6,7 @@
 
 RoboCAT is a self-improving foundation agent for robotic manipulation developed by DeepMind Robotics. The model architecture of RoboCAT is similar to the RT-1 model. It follows a tokenization approach where robotics images, proprioception, and future actions are tokenized. 
 
-* Help with the implementation in the Agora discord, [![Join the Agora discord](https://img.shields.io/discord/1110910277110743103?label=Discord&logo=discord&logoColor=white&style=plastic&color=d7b023)]
+* Help with the implementation in the Agora discord, ![Discord](https://img.shields.io/discord/999382051935506503)
 
 # Install
 `pip install robotcat` 
