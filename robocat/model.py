@@ -514,7 +514,7 @@ class TokenLearner(nn.Module):
         x = reduce(x * attn, 'b c g h w -> b c g', 'mean')
         x = unpack_one(x, ps, '* c n')
         return x
-    
+
 
 # data generator using stable instead of VQGAN
 class ImageDataGenerator:
@@ -541,17 +541,19 @@ class ImageDataGenerator:
             torch_dtype=torch.float16
         )
         self.pipe = self.pipe.to("cuda")
+        self.save_path = save_path
 
     def generate(self, prompt):
         image = self.pipe(prompt).images[0]
-        image.save(self.save_path)
+        # Assuming the output is a PIL image
+        image.save(f"{self.save_path}/{prompt}.jpg")
         return image
     
 
 class VideoDataGenerator:
     def __init__(
         self,
-        model_id = "cerspense/zeroscope_v2_576w",
+        model_id="cerspense/zeroscope_v2_576w",
         prompt: str = None,
         num_inference_steps=40,
         height=320,
@@ -576,15 +578,14 @@ class VideoDataGenerator:
         self.width = width
         self.num_frames = num_frames
 
-        
-        self.pipe = DiffusionPipeline.from_pretained(
+        self.pipe = DiffusionPipeline.from_pretrained(
             model_id,
             torch_dtype=torch.float16
         )
         self.pipe.scheduler = DPMSolverMultistepScheduler.from_config(self.pipe.scheduler.config)
         self.pipe.enable_model_cpu_offload()
 
-    def generate(self, prompt = None):
+    def generate(self, prompt=None):
         prompt = self.prompt or prompt
         video_frames = self.pipe(
             prompt,
@@ -594,7 +595,6 @@ class VideoDataGenerator:
             num_frames=self.num_frames
         ).frames
         video_path = self.export_to_video(video_frames)
-
 
 # Robotic Transformer
 
