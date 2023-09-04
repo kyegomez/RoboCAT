@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "robocat"
-version = "0.1.0"
+version = "0.1.1gi"
 description = "Robo CAT- Pytorch"
 authors = ["Kye Gomez <kye@apac.ai>"]
 license = "MIT"

@@ -567,7 +567,7 @@ class VideoDataGenerator:
 
             self.export_to_video = export_to_video
         except Exception as error:
-            print(f"Please download the torch and diffusers library pip3 install torch diffusers")
+            print(f"Please download the torch and diffusers library pip3 install torch diffusers: {error}")
 
         self.model_id = model_id
         self.prompt = prompt
