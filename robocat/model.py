@@ -726,9 +726,9 @@ class RoboCat:
         mbconv_shrinkage_rate = 0.25,
         dropout = 0.1,
         num_actions=11,
-        depth_2=6,
+        model_depth=6,
         heads=8,
-        dim_head2=64,
+        model_dim_head=64,
         cond_drop_prob=0.2
     ):
         super().__init__()
@@ -748,18 +748,17 @@ class RoboCat:
         self.model = Gato(
             vit=self.vit,
             num_actions=num_actions,
-            depth=depth_2,
+            depth=model_depth,
             heads=heads,
-            dim_head=dim_head2,
+            dim_head=model_dim_head,
             cond_drop_prob=cond_drop_prob
         )
 
     def forward(
             self,
             video,
-            text
+            instructions
         ):
-        logits = self.model(video, text)
+        return self.model(video, instructions)
         # eval = self.model.eval()
         # eval_logits = self.model(video, text, cond_scale=3.)
-        return logits
