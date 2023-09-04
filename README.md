@@ -11,7 +11,7 @@ RoboCAT is a self-improving foundation agent for robotic manipulation developed 
 # Install
 `pip install robotcat` 
 
-## Usage
+## Basic Usage
 
 ```python
 import torch 
@@ -26,6 +26,32 @@ instructions = [
 
 result = model.forward(video, instructions)
 print(result)
+
+```
+
+
+## Generate Data
+* RoboCat can self generate data with images and or video, to use simply use the generator classes -> then tokenize and or tensorize using your custom strategy
+
+```python
+#for images
+from robotcat import ImageDataGenerator
+
+generator = ImageDataGenerator()
+
+prompt = "Robot picking up cup in kitchen"
+generator.generate(prompt)
+```
+
+and or for videos
+
+```python
+from robocat import VideoDataGenerator
+
+generator = VideoDataGenerator()
+
+prompt = "Robot picking up cup in kitchen in first person"
+result = generator.generate(prompt)
 
 ```
 
