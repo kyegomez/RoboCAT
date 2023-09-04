@@ -546,7 +546,7 @@ class ImageDataGenerator:
     def generate(self, prompt):
         image = self.pipe(prompt).images[0]
         # Assuming the output is a PIL image
-        image.save(f"{self.save_path}/{prompt}.jpg")
+        image.save(f"{self.save_path}/image.jpg")
         return image
     
 
