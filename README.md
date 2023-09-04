@@ -8,8 +8,12 @@ RoboCAT is a self-improving foundation agent for robotic manipulation developed 
 
 * Help with the implementation in the Agora discord, ![Discord](https://img.shields.io/discord/999382051935506503)
 
+----
+
 # Install
 `pip install robotcat` 
+
+---
 
 ## Basic Usage
 
@@ -46,31 +50,20 @@ generator.generate(prompt)
 and or for videos
 
 ```python
-from robocat import VideoDataGenerator
+from robocat import VideoDataGenerator, RoboCat
 
 generator = VideoDataGenerator()
+model = RoboCat()
 
 prompt = "Robot picking up cup in kitchen in first person"
-result = generator.generate(prompt)
+video = generator.generate(prompt)
+video = transform_to_tensors(video) #(batch, frames, actions, bins)
+
+model(video, prompt)
 
 ```
+----
 
-* Or train:
-
-```python
-from roboCAT import Train
-
-Train()
-
-```
-
-
-# Train
-
-
-* Or run training on C4 `accelerate config`
-
-* Then, `accelerate launch roboCAT/train.py`
 
 ## Architecture
 The architecture consists of the following key components:
