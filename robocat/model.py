@@ -716,9 +716,9 @@ class Gato(nn.Module):
 class RoboCat:
     def __init__(
         self,
-        dim = 96,
         num_classes = 1000,
         dim_conv_stem = 64,
+        dim = 96,
         dim_head=32,
         depth=(2, 2, 5, 2),
         window_size=7,

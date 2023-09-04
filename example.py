@@ -9,6 +9,6 @@ instructions = [
     "bring me that apple"
 ]
 
-result = model.forward(video, instructions)
+result = model(video, instructions)
 print(result)
 
