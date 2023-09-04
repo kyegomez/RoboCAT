@@ -29,6 +29,7 @@ tokenizers = "*"
 wandb = "*"
 classifier-free-guidance-pytorch = "*"
 dalle-pytorch = "*"
+diffusers = "*"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

@@ -517,7 +517,7 @@ class TokenLearner(nn.Module):
     
 
 # data generator using stable instead of VQGAN
-class DataGenerator:
+class ImageDataGenerator:
     def __init__(
         self,
         model_id: str = "stabilityai/stable-diffusion-2",
@@ -529,7 +529,7 @@ class DataGenerator:
         try:
             from diffusers import StableDiffusionPipeline, EulerDiscreteScheduler
         except Exception as error:
-            print(f"Cannot import diffusers, please download with pip install diffusers {error}")
+            print(f"Cannot import diffusers, please download with pip install diffusers, {error}")
         
         self.scheduler = EulerDiscreteScheduler.from_pretrained(
             model_id,
@@ -546,6 +546,55 @@ class DataGenerator:
         image = self.pipe(prompt).images[0]
         image.save(self.save_path)
         return image
+    
+
+class VideoDataGenerator:
+    def __init__(
+        self,
+        model_id = "cerspense/zeroscope_v2_576w",
+        prompt: str = None,
+        num_inference_steps=40,
+        height=320,
+        width=576,
+        num_frames=24
+    ):
+        super().__init__()
+
+        try:
+            import torch
+            from diffusers import DiffusionPipeline, DPMSolverMultistepScheduler
+            from diffusers.utils import export_to_video
+            
+            self.export_to_video = export_to_video
+        except Exception as error:
+            print(f"Please download the torch and diffusers library pip3 install torch diffusers")
+
+        self.model_id = model_id
+        self.prompt = prompt
+        self.num_inference_steps = num_inference_steps
+        self.height = height
+        self.width = width
+        self.num_frames = num_frames
+
+        
+        self.pipe = DiffusionPipeline.from_pretained(
+            model_id,
+            torch_dtype=torch.float16
+        )
+        self.pipe.scheduler = DPMSolverMultistepScheduler.from_config(self.pipe.scheduler.config)
+        self.pipe.enable_model_cpu_offload()
+
+    def generate(self, prompt = None):
+        prompt = self.prompt or prompt
+        video_frames = self.pipe(
+            prompt,
+            num_inference_steps=self.num_inference_steps,
+            height=self.height,
+            width=self.width,
+            num_frames=self.num_frames
+        ).frames
+        video_path = self.export_to_video(video_frames)
+
 
 # Robotic Transformer
 
