@@ -520,9 +520,9 @@ class TokenLearner(nn.Module):
 class DataGenerator:
     def __init__(
         self,
-        model_id: str = None,
+        model_id: str = "stabilityai/stable-diffusion-2",
         prompt: str = None,
-        save_path: str = None
+        save_path: str = "generated_images"
     ):
         super().__init__()
 
@@ -545,6 +545,7 @@ class DataGenerator:
     def generate(self, prompt):
         image = self.pipe(prompt).images[0]
         image.save(self.save_path)
+        return image
 
 # Robotic Transformer
 
