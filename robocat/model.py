@@ -517,8 +517,34 @@ class TokenLearner(nn.Module):
     
 
 # data generator using stable instead of VQGAN
+class DataGenerator:
+    def __init__(
+        self,
+        model_id: str = None,
+        prompt: str = None,
+        save_path: str = None
+    ):
+        super().__init__()
 
+        try:
+            from diffusers import StableDiffusionPipeline, EulerDiscreteScheduler
+        except Exception as error:
+            print(f"Cannot import diffusers, please download with pip install diffusers {error}")
+        
+        self.scheduler = EulerDiscreteScheduler.from_pretrained(
+            model_id,
+            subfolder="scheduler"
+        )
+        self.pipe = StableDiffusionPipeline.from_pretrained(
+            model_id, 
+            scheduler=self.scheduler,
+            torch_dtype=torch.float16
+        )
+        self.pipe = self.pipe.to("cuda")
 
+    def generate(self, prompt):
+        image = self.pipe(prompt).images[0]
+        image.save(self.save_path)
 
 # Robotic Transformer
 
@@ -684,7 +710,6 @@ class RoboCat:
             text
         ):
         logits = self.model(video, text)
-        
         # eval = self.model.eval()
         # eval_logits = self.model(video, text, cond_scale=3.)
         return logits
