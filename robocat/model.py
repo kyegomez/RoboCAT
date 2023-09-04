@@ -564,7 +564,7 @@ class VideoDataGenerator:
             import torch
             from diffusers import DiffusionPipeline, DPMSolverMultistepScheduler
             from diffusers.utils import export_to_video
-            
+
             self.export_to_video = export_to_video
         except Exception as error:
             print(f"Please download the torch and diffusers library pip3 install torch diffusers")
@@ -599,7 +599,7 @@ class VideoDataGenerator:
 # Robotic Transformer
 
 @beartype
-class RT1(nn.Module):
+class Gato(nn.Module):
     def __init__(
         self,
         *,
@@ -745,7 +745,7 @@ class RoboCat:
             dropout=dropout
         )
 
-        self.model = RT1(
+        self.model = Gato(
             vit=self.vit,
             num_actions=num_actions,
             depth=depth_2,

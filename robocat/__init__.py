@@ -1,1 +1,1 @@
-from robocat.model import DataGenerator, RoboCat
+from robocat.model import ImageDataGenerator, VideoDataGenerator, RoboCat
