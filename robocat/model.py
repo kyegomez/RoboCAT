@@ -514,6 +514,11 @@ class TokenLearner(nn.Module):
         x = reduce(x * attn, 'b c g h w -> b c g', 'mean')
         x = unpack_one(x, ps, '* c n')
         return x
+    
+
+# data generator using stable instead of VQGAN
+
+
 
 # Robotic Transformer
 
